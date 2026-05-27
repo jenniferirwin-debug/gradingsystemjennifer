@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Grading System</title>
+
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    .container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .header h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      width: 320px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+    }
+
+    .check-btn {
+      background: #007bff;
+    }
+
+    .reset-btn {
+      background: #dc3545;
+    }
+
+    .pass {
+      color: green;
+      font-weight: bold;
+    }
+
+    .fail {
+      color: red;
+      font-weight: bold;
+    }
+
+    p {
+      margin: 10px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+
+    function StudentHeader() {
+      return (
+        <div className="header">
+          <h1>Student Grading System</h1>
+        </div>
+      );
+    }
+
+    function ResultCard(props) {
+      return (
+        <div className="card">
+          <h2>Result</h2>
+
+          <p><strong>Name:</strong> {props.name}</p>
+
+          <p><strong>Marks:</strong> {props.marks}</p>
+
+          <p><strong>Grade:</strong> {props.grade}</p>
+
+          <p>
+            <strong>Status:</strong>
+            <span className={props.status === "PASS" ? "pass" : "fail"}>
+              {" "}{props.status}
+            </span>
+          </p>
+
+          <p><strong>Remark:</strong> {props.remark}</p>
+        </div>
+      );
+    }
+
+    function App() {
+
+      const [name, setName] = React.useState("");
+      const [marks, setMarks] = React.useState("");
+      const [result, setResult] = React.useState(null);
+
+      
+      React.useEffect(() => {
+        const saved = localStorage.getItem("studentResult");
+
+        if (saved) {
+          setResult(JSON.parse(saved));
+        }
+      }, []);
+
+    
+      React.useEffect(() => {
+        if (result) {
+          localStorage.setItem("studentResult", JSON.stringify(result));
+        }
+      }, [result]);
+
+      function checkResult() {
+
+        if (name.trim() === "" || marks === "") {
+          alert("Please fill all fields");
+          return;
+        }
+
+        const score = Number(marks);
+
+        if (score < 0 || score > 100) {
+          alert("Marks must be between 0 and 100");
+          return;
+        }
+
+        let grade = "";
+        let remark = "";
+        let status = "";
+
+        if (score >= 80) {
+          grade = "A";
+          remark = "Excellent";
+          status = "PASS";
+        }
+        else if (score >= 70) {
+          grade = "B";
+          remark = "Very Good";
+          status = "PASS";
+        }
+        else if (score >= 60) {
+          grade = "C";
+          remark = "Good";
+          status = "PASS";
+        }
+        else if (score >= 50) {
+          grade = "D";
+          remark = "Fair";
+          status = "PASS";
+        }
+        else {
+          grade = "F";
+          remark = "Fail";
+          status = "FAIL";
+        }
+
+        setResult({
+          name,
+          marks: score,
+          grade,
+          status,
+          remark
+        });
+      }
+
+      function resetFields() {
+        setName("");
+        setMarks("");
+        setResult(null);
+        localStorage.removeItem("studentResult");
+      }
+
+      return (
+        <div className="container">
+
+   
+
+          <div className="card">
+
+            <input
+              type="text"
+              placeholder="Enter student name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+
+            <input
+              type="number"
+              placeholder="Enter marks"
+              value={marks}
+              onChange={(e) => setMarks(e.target.value)}
+            />
+
+            <div className="buttons">
+              <button className="check-btn" onClick={checkResult}>
+                Check Result
+              </button>
+
+              <button className="reset-btn" onClick={resetFields}>
+                Reset
+              </button>
+            </div>
+
+          </div>
+
+          {result && (
+            <ResultCard
+              name={result.name}
+              marks={result.marks}
+              grade={result.grade}
+              status={result.status}
+              remark={result.remark}
+            />
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+  </script>
+
+</body>
+</html>
